@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SmartPalmBot Analysis Dashboard</title>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <aside>
+    <div class="nav-icon" data-target="about"><i class="fas fa-circle-info"></i><span>About</span></div>
+    <div class="nav-icon" data-target="dashboard"><i class="fas fa-chart-line"></i><span>Dashboard</span></div>
+    <div class="nav-icon" data-target="chatbot"><i class="fas fa-robot"></i><span>Chatbot</span></div>
+  </aside>
+
+  <main>
+    <!-- Hero -->
+    <header class="hero">
+      <div class="hero-content">
+        <h1>SmartPalmBot</h1>
+        <p>Empowering Farmers with Real‑Time Insights & Analysis</p>
+        <a href="#dashboard" class="btn">View Dashboard</a>
+      </div>
+    </header>
+
+    <!-- About -->
+    <section id="about" data-aos="fade-up">
+      <h2>About SmartPalmBot</h2>
+      <p>
+        SmartPalmBot is a smart monitoring system for oil palm plantations, powered by real-time sensors, Atificial Intelligence (AI),
+        and live dashboards. Get instant insights on temperature, humidity, and irrigation—right from your field,
+        in one chat.
+      </p>
+    </section>
+
+    <!-- Dashboard -->
+    <section id="dashboard" data-aos="fade-up">
+      <h2>Live Dashboard</h2>
+      <div class="iframe-container">
+        <iframe title="SmartPalmBot Analysis Dashboard" width="1140" height="541.25"
+          src="https://app.powerbi.com/reportEmbed?reportId=2229ad4b-fcba-4957-b7fc-8a0d47188aa5&autoAuth=true&ctid=abbe4076-34d8-4f7b-be72-88ada572a1da"
+          allowFullScreen="true">
+        </iframe>
+      </div>
+    </section>
+
+    <!-- Embedded Chatbot -->
+    <section id="chatbot" data-aos="fade-up">
+      <h2>SmartPalmBot Chat Assistant</h2>
+      <p style="color:white; margin-bottom: 15px;">
+        Ask about temperature, humidity, or general farming queries.
+      </p>
+      <iframe 
+        src="/chat" 
+        width="100%" 
+        height="600px" 
+        style="border:none; border-radius:15px; box-shadow: 0 0 20px rgba(0,0,0,0.5);">
+      </iframe>
+    </section>
+
+    <footer>&copy; 2025 SmartPalmBot · FYP · UNIMAS</footer>
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script>AOS.init();</script>
+  <script src="https://cdn.jsdelivr.net/npm/powerbi-client@2.19.3/dist/powerbi.min.js"></script>
+  <script src="{{ url_for('static', filename='main.js') }}"></script>
+
+</body>
+</html>

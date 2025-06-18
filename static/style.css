@@ -1,0 +1,228 @@
+/* Fonts and Reset */
+@import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Gradient palette stops */
+  --gradient-1: #0d1117;
+  --gradient-2: #2b3f71;
+  --gradient-3: #482760;
+  --gradient-4: #511c82;
+
+  /* Accent & text colors */
+  --accent: #e2e8f0;
+  --text-light: #ffffff;
+  --text-dark: lab(85.66% 3.98 -16.45);
+}
+
+/* Base layout */
+body {
+  font-family: 'Urbanist', sans-serif;
+  color: var(--text-dark);
+  background: linear-gradient(
+    135deg,
+    var(--gradient-1) 0%,
+    var(--gradient-2) 40%,
+    var(--gradient-3) 75%,
+    var(--gradient-4) 100%
+  );
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Sidebar Navigation */
+aside {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 80px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--gradient-1), var(--gradient-2));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+  z-index: 1000;
+}
+
+.nav-icon {
+  color: #e2e8f0;
+  text-align: center;
+  margin: 20px 0;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.nav-icon:hover {
+  color:#2e84a5;
+}
+
+.nav-icon i {
+  font-size: 24px;
+}
+
+.nav-icon span {
+  display: block;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* Main Content Layout */
+main {
+  margin-left: 100px;
+  padding: 20px;
+}
+
+/* Hero Section */
+.hero {
+  background: linear-gradient(to right, rgba(16,30,48,0.8), rgba(16,30,48,0.8)),
+              url("../static/palm-oil-background.jpg") center/cover no-repeat;
+  padding: 100px 40px;
+  text-align: center;
+  color: white;
+  border-radius: 12px;
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 64px;
+  margin-bottom: 20px;
+  color: hwb(0 98% 2%);
+}
+
+.hero p {
+  font-size: 20px;
+  color: hsl(204, 51%, 79%);
+}
+
+.hero .btn {
+  background-color: #91e4f1;
+  color: hsl(208, 47%, 12%);
+  padding: 10px 25px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: bold;
+  margin-top: 20px;
+  display: inline-block;
+}
+
+/* Section Layout */
+section {
+  padding: 60px 40px;
+}
+
+/* Dashboard */
+.iframe-container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  margin-top: 20px;
+}
+
+.iframe-container iframe {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 0 30px rgba(0,0,0,0.7);
+}
+
+/* Chatbot Styling */
+.card {
+  height: 500px;
+  max-width: 700px;
+  margin: 40px auto;
+  border-radius: 15px;
+  background-color: rgba(15, 23, 42, 0.95);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+}
+.card-header .img_cont img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+}
+.msg_head {
+  border-radius: 15px 15px 0 0;
+  border-bottom: 0;
+}
+.msg_card_body {
+  overflow-y: auto;
+  background-color: #0f172a;
+  padding: 15px;
+  height: 350px;
+}
+.card-footer .input-group {
+  display: flex;
+  align-items: center;
+}
+.card-footer .input-group input[type="text"] {
+  flex-grow: 1;
+  margin-right: 10px;
+  height: 50px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #0f172a;
+  border: none;
+  color: white;
+}
+.card-footer .input-group button {
+  height: 50px;
+  width: 50px;
+  border-radius: 8px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+.msg_cotainer, .msg_cotainer_send {
+  padding: 10px;
+  border-radius: 25px;
+  position: relative;
+  max-width: 75%;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.msg_cotainer {
+  background-color: hsl(207, 70%, 55%);
+  margin-left: 10px;
+}
+.msg_cotainer_send {
+  background-color: #58cc71;
+  margin-right: 10px;
+  margin-left: auto;
+}
+.msg_time, .msg_time_send {
+  position: absolute;
+  bottom: -15px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 10px;
+}
+.msg_time {
+  left: 0;
+}
+.msg_time_send {
+  right: 0;
+}
+.user_img_msg, .img_cont_msg img {
+  width: 35px;
+  height: 35px;
+  object-fit: cover;
+  border: 1.5px solid #f5f6fa;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+  color: #94a3b8;
+  border-top: 1px solid #334155;
+  margin-top: 60px;
+}
