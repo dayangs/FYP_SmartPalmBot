@@ -64,26 +64,24 @@ def chatbot_response():
     msg = request.form["msg"].lower()
     rows = fetch_latest_sensor()
 
-    if not rows:
-        return "⚠️ Unable to retrieve sensor data right now."
+    if rows:
+        latest = rows[0]
+        max_temp_row = max(rows, key=lambda x: x.Temperature)
+        min_hum_row = min(rows, key=lambda x: x.Humidity)
 
-    latest = rows[0]
-    max_temp_row = max(rows, key=lambda x: x.Temperature)
-    min_hum_row = min(rows, key=lambda x: x.Humidity)
-
-    if "temperature" in msg:
-        return f"🌡️ Current temperature is {latest.Temperature}°C at {latest.Position} (Sensor {latest.Sensor}) as of {latest.Date.strftime('%Y-%m-%d')}."
-    elif "humidity" in msg:
-        return f"💧 Current humidity is {latest.Humidity}% at {latest.Position} (Sensor {latest.Sensor}) as of {latest.Date.strftime('%Y-%m-%d')}."
-    elif "water" in msg or "irrigation" in msg or "siram" in msg:
-        if latest.Temperature > 30 or latest.Humidity < 50:
-            return f"✅ Yes, watering is advisable (Temp: {latest.Temperature}°C, Humidity: {latest.Humidity}%)."
-        else:
-            return f"🚫 No need to water now. (Temp: {latest.Temperature}°C, Humidity: {latest.Humidity}%)."
-    elif "hottest" in msg or "highest temperature" in msg:
-        return f"🔥 The highest temperature is {max_temp_row.Temperature}°C at {max_temp_row.Position} (Sensor {max_temp_row.Sensor}) on {max_temp_row.Date.strftime('%Y-%m-%d')}."
-    elif "lowest humidity" in msg or "driest" in msg:
-        return f"💨 The lowest humidity is {min_hum_row.Humidity}% at {min_hum_row.Position} (Sensor {min_hum_row.Sensor}) on {min_hum_row.Date.strftime('%Y-%m-%d')}."
+        if "temperature" in msg:
+            return f"🌡️ Current temperature is {latest.Temperature}°C at {latest.Position} (Sensor {latest.Sensor}) as of {latest.Date.strftime('%Y-%m-%d')}."
+        elif "humidity" in msg:
+            return f"💧 Current humidity is {latest.Humidity}% at {latest.Position} (Sensor {latest.Sensor}) as of {latest.Date.strftime('%Y-%m-%d')}."
+        elif "water" in msg or "irrigation" in msg or "siram" in msg:
+            if latest.Temperature > 30 or latest.Humidity < 50:
+                return f"✅ Yes, watering is advisable (Temp: {latest.Temperature}°C, Humidity: {latest.Humidity}%)."
+            else:
+                return f"🚫 No need to water now. (Temp: {latest.Temperature}°C, Humidity: {latest.Humidity}%)."
+        elif "hottest" in msg or "highest temperature" in msg:
+            return f"🔥 The highest temperature is {max_temp_row.Temperature}°C at {max_temp_row.Position} (Sensor {max_temp_row.Sensor}) on {max_temp_row.Date.strftime('%Y-%m-%d')}."
+        elif "lowest humidity" in msg or "driest" in msg:
+            return f"💨 The lowest humidity is {min_hum_row.Humidity}% at {min_hum_row.Position} (Sensor {min_hum_row.Sensor}) on {min_hum_row.Date.strftime('%Y-%m-%d')}."
 
     # Fallback to DialoGPT
     tokenizer, model = load_model()  # <- Lazy load only when needed
