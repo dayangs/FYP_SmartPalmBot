@@ -3,12 +3,13 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 import pyodbc
 from datetime import datetime
+import os
+import gc
 
 app = Flask(__name__)
 
 # Load DialoGPT model 
 def load_model():
-    from transformers import AutoModelForCausalLM, AutoTokenizer
     tokenizer = AutoTokenizer.from_pretrained("microsoft/DialoGPT-small")
     model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-small")
     return tokenizer, model
@@ -26,6 +27,7 @@ def fetch_latest_sensor():
             "UID=sqladmin;"
             "PWD=tdmtdM@kt;"
             "Encrypt=yes;"
+            "Connection Timeout=10;"
         )
        
         cursor = conn.cursor()
@@ -60,7 +62,6 @@ def chat():
 @app.route("/get", methods=["POST"])
 def chatbot_response():
     global chat_history_ids
-
     msg = request.form["msg"].lower()
     rows = fetch_latest_sensor()
 
@@ -82,29 +83,39 @@ def chatbot_response():
             return f"🔥 The highest temperature is {max_temp_row.Temperature}°C at {max_temp_row.Position} (Sensor {max_temp_row.Sensor}) on {max_temp_row.Date.strftime('%Y-%m-%d')}."
         elif "lowest humidity" in msg or "driest" in msg:
             return f"💨 The lowest humidity is {min_hum_row.Humidity}% at {min_hum_row.Position} (Sensor {min_hum_row.Sensor}) on {min_hum_row.Date.strftime('%Y-%m-%d')}."
+        
+    # GPT fallback
+    try:
+        tokenizer, model = load_model()  # <- Lazy load only when needed
+        new_input_ids = tokenizer.encode(msg + tokenizer.eos_token, return_tensors='pt')
 
-    # Fallback to DialoGPT
-    tokenizer, model = load_model()  # <- Lazy load only when needed
-    new_input_ids = tokenizer.encode(msg + tokenizer.eos_token, return_tensors='pt')
+        if chat_history_ids is not None:
+            bot_input_ids = torch.cat([chat_history_ids, new_input_ids], dim=-1)
+        else:
+            bot_input_ids = new_input_ids
 
-    if chat_history_ids is not None:
-        bot_input_ids = torch.cat([chat_history_ids, new_input_ids], dim=-1)
-    else:
-        bot_input_ids = new_input_ids
+        chat_history_ids = model.generate(
+            bot_input_ids,
+            max_length=1000,
+            pad_token_id=tokenizer.eos_token_id,
+            no_repeat_ngram_size=3,
+            do_sample=True,
+            top_k=100,
+            top_p=0.7,
+            temperature=0.9,
+        )
 
-    chat_history_ids = model.generate(
-        bot_input_ids,
-        max_length=1000,
-        pad_token_id=tokenizer.eos_token_id,
-        no_repeat_ngram_size=3,
-        do_sample=True,
-        top_k=100,
-        top_p=0.7,
-        temperature=0.9,
-    )
-
-    reply = tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0], skip_special_tokens=True)
-    return reply
+        reply = tokenizer.decode(chat_history_ids[:, bot_input_ids.shape[-1]:][0], skip_special_tokens=True)
+        
+        # Cleanup to save memory
+        del tokenizer, model
+        gc.collect()
+        
+        return reply
+    
+    except Exception as e:
+        print(f"❌ GPT fallback error: {e}")
+        return "⚠️ I'm having trouble replying right now. Please try again later."
 
 if __name__ == "__main__":
     import os
