@@ -51,6 +51,7 @@
         const rawText = $("#text").val();
         const date = new Date();
         const time = `${date.getHours()}:${String(date.getMinutes()).padStart(2, '0')}`;
+        const botLogo = document.getElementById("botLogo").getAttribute("data-src");
 
         const userHtml = `<div class="d-flex justify-content-end mb-4">
           <div class="msg_cotainer_send">${rawText}<span class="msg_time_send">${time}</span></div>
@@ -65,7 +66,6 @@
           type: "POST",
           url: "/get",
         }).done(function (data) {
-          const botLogo = document.getElementById("botLogo").getAttribute("data-src");
           const botHtml = `<div class="d-flex justify-content-start mb-4">
             <div class="img_cont_msg"><img src="{{ url_for('static', filename='chatbot-logo.png') }}" class="rounded-circle user_img_msg"></div>
             <div class="msg_cotainer">${data}<span class="msg_time">${time}</span></div>
@@ -75,6 +75,8 @@
         });
       });
     });
-  </script>
+    // Main JS linked here
+</script>
+<script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>
