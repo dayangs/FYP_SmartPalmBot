@@ -10,6 +10,7 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
+  <span id="botLogo" data-src="{{ url_for('static', filename='chatbot-logo.png') }}" hidden></span>
   <div class="full-chat">
     <div class="chat-card">
       <div class="d-flex align-items-center">
@@ -64,6 +65,7 @@
           type: "POST",
           url: "/get",
         }).done(function (data) {
+          const botLogo = document.getElementById("botLogo").getAttribute("data-src");
           const botHtml = `<div class="d-flex justify-content-start mb-4">
             <div class="img_cont_msg"><img src="{{ url_for('static', filename='chatbot-logo.png') }}" class="rounded-circle user_img_msg"></div>
             <div class="msg_cotainer">${data}<span class="msg_time">${time}</span></div>
