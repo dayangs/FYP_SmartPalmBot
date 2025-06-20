@@ -27,7 +27,6 @@ def fetch_latest_sensor():
             "UID=sqladmin;"
             "PWD=tdmtdM@kt;"
             "Encrypt=yes;"
-            "Connection Timeout=10;"
         )
        
         cursor = conn.cursor()
@@ -84,8 +83,9 @@ def chatbot_response():
         elif "lowest humidity" in msg or "driest" in msg:
             return f"💨 The lowest humidity is {min_hum_row.Humidity}% at {min_hum_row.Position} (Sensor {min_hum_row.Sensor}) on {min_hum_row.Date.strftime('%Y-%m-%d')}."
         
-    # GPT fallback
+    # Fallback to DialoGPT response
     try:
+        print("🧠 Falling back to DialoGPT...")
         tokenizer, model = load_model()  # <- Lazy load only when needed
         new_input_ids = tokenizer.encode(msg + tokenizer.eos_token, return_tensors='pt')
 
