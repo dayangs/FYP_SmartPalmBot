@@ -8,10 +8,11 @@ import gc
 
 app = Flask(__name__)
 
-# Load DialoGPT model 
 def load_model():
-    tokenizer = AutoTokenizer.from_pretrained("microsoft/DialoGPT-small")
-    model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-small")
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+    model_dir = "./pretrained/dialo"
+    tokenizer = AutoTokenizer.from_pretrained(model_dir)
+    model = AutoModelForCausalLM.from_pretrained(model_dir)
     return tokenizer, model
 
 # Keep track of conversation history

@@ -1,4 +1,7 @@
 chatbot-env/
+env/
+venv/
+.env
 __pycache__/
 *.pyc
-.env
+pretrained/
