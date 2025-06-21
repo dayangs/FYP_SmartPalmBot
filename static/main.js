@@ -30,7 +30,7 @@ function sendMsg() {
   const userHtml = `
     <div class="d-flex justify-content-end mb-4">
       <div class="msg_cotainer_send">${text}<span class="msg_time_send">${time}</span></div>
-      <div class="img_cont_msg"><img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg"></div>
+      <div class="img_cont_msg"><img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg" style="width:40px;height:40px;"></div>
     </div>`;
   chatlog.innerHTML += userHtml;
   userInput.value = '';
@@ -45,7 +45,7 @@ function sendMsg() {
     .then((data) => {
       const botHtml = `
         <div class="d-flex justify-content-start mb-4">
-          <div class="img_cont_msg"><img src="${botLogo}" class="rounded-circle user_img_msg"></div>
+          <div class="img_cont_msg"><img src="${botLogo}" class="rounded-circle user_img_msg" style="width:40px;height:40px;"></div>
           <div class="msg_cotainer">${data}<span class="msg_time">${time}</span></div>
         </div>`;
       chatlog.innerHTML += botHtml;
@@ -63,7 +63,7 @@ userInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendMsg();
 });
 
-// 3) Poll sensor data every minute
+// 3) Poll sensor data every minute (optional, won't break if backend route missing)
 async function fetchSensor() {
   try {
     const res = await fetch('/api/sensor');
@@ -73,7 +73,8 @@ async function fetchSensor() {
     document.getElementById('humValue').textContent  = `${humidity}%`;
     document.getElementById('weatherValue').textContent = weather;
   } catch (err) {
-    console.warn('Sensor fetch failed:', err);
+    // Optionally log or display: document.getElementById('weatherValue').textContent = 'N/A';
+    // console.warn('Sensor fetch failed:', err);
   }
 }
 
