@@ -2,6 +2,7 @@ services:
   - type: web
     name: smartpalmbot
     env: python
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python app.py"
-    plan: free
+    buildCommand: |
+      pip install -r requirements.txt
+      python download_model.py  # <-- this downloads the model
+    startCommand: python app.py
