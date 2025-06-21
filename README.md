@@ -8,7 +8,7 @@ SmartPalmBot is a full-stack AI-powered monitoring system for oil palm plantatio
 
 - 🌡️ Real-time temperature and humidity monitoring via TP-Link Tapo sensors
 - 📊 Power BI dashboard for live data visualization and anomaly detection
-- 🤖 Chatbot assistant that answers plantation-related queries conversationally
+- 🤖 Chatbot assistant that answers plantation-related queries conversationally (sensor data only on cloud, AI fallback locally)
 - ☁️ Azure SQL integration for scalable cloud data storage
 - 🔄 Automation using Azure Functions & Power Automate
 - 📩 Email notifications for successful or failed data updates
@@ -35,14 +35,16 @@ SmartPalmBot is a full-stack AI-powered monitoring system for oil palm plantatio
 ```
 SmartPalmBot/
 ├── app.py                  # Flask app
+├── download_model.py       # (For local AI fallback only)
 ├── data_processing.py      # AI analysis & prediction script
-├── data_update.py          # Automated sensor data ingestion
 ├── requirements.txt
 ├── templates/
-│   ├── index.html          # Front page
+│   ├── index.html          # Front page (with Power BI)
 │   └── chat.html           # Chatbot UI
 ├── static/
 │   ├── style.css
+│   ├── favicon.png
+│   ├── palm-oil-background.jpg
 │   ├── chatbot-logo.png
 │   └── main.js
 └── .gitignore
@@ -72,25 +74,42 @@ python -m venv chatbot-env
 pip install -r requirements.txt
 ```
 
-### 4. Run the app
+### 4. (Optional, for AI chatbot) Download DialoGPT model
+Skip this on cloud deployment—local only!
+```bash
+python download_model.py
+```
 
+### Run the app
 ```bash
 python app.py
 ```
 
-Then open your browser at [http://localhost:5000](http://localhost:5000)
+Then open your browser at http://localhost:10000 or your configured port.
+---
+
+## ⚠️ Deployment & Limitations
+
+Cloud Deployment (Render, etc.):
+
+- Database integration, sensor query, and Power BI dashboard features are available online.
+
+- AI chatbot fallback (DialoGPT) is disabled on free cloud hosts due to RAM limits; users will receive a message indicating the AI is offline.
+
+Local Deployment:
+
+- All features work, including AI chatbot fallback (DialoGPT) for general conversation.
+
+Note:For demo/viva, the AI chatbot is shown running locally. Limitation is documented in system report.
 
 ---
 
 ## ⚠️ Security Notice
+All credentials and passwords are for development use only.Use a .env file and environment variables in production.
 
-- API keys, passwords, and database credentials are hardcoded in dev but should be moved to a `.env` file in production.
-- Always exclude `chatbot-env/`, `__pycache__/`, and `.env` using `.gitignore`
-
----
+Do not commit sensitive data to GitHub.
 
 ## 📬 Contact
-
 **Dayang Nadirah binti Mohd Annuar**  
 Bachelor of Computer Science (Hons)  
 Universiti Malaysia Sarawak (UNIMAS)  
