@@ -9,4 +9,8 @@ model = AutoModelForCausalLM.from_pretrained(model_name)
 tokenizer.save_pretrained(save_dir)
 model.save_pretrained(save_dir)
 
+print("Download finished! Model files:", os.listdir(save_dir))
+
+
+
 

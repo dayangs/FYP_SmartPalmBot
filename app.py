@@ -11,8 +11,11 @@ app = Flask(__name__)
 def load_model():
     from transformers import AutoModelForCausalLM, AutoTokenizer
     model_dir = "./pretrained/dialo"
-    tokenizer = AutoTokenizer.from_pretrained(model_dir)
-    model = AutoModelForCausalLM.from_pretrained(model_dir)
+    print("Loading model from:", model_dir)
+    print("Model directory exists:", os.path.exists(model_dir))
+    print("Model directory contents:", os.listdir(model_dir) if os.path.exists(model_dir) else "Missing!")
+    tokenizer = AutoTokenizer.from_pretrained(model_dir, local_files_only=True)
+    model = AutoModelForCausalLM.from_pretrained(model_dir, local_files_only=True)
     return tokenizer, model
 
 # Keep track of conversation history
@@ -59,11 +62,23 @@ def index():
 def chat():
     return render_template("chat.html")
 
+@app.route("/check-model")
+def check_model():
+    model_dir = "./pretrained/dialo"
+    try:
+        files = os.listdir(model_dir)
+        return "<br>".join(files)
+    except Exception as e:
+        return f"Error: {e}"
+
 @app.route("/get", methods=["POST"])
 def chatbot_response():
     global chat_history_ids
+    print("POST /get received")
     msg = request.form["msg"].lower()
+    print("User message:", msg)
     rows = fetch_latest_sensor()
+    print("Database fetch result:", rows)
 
     if rows:
         latest = rows[0]
@@ -112,6 +127,7 @@ def chatbot_response():
         del tokenizer, model
         gc.collect()
         
+        print("DialoGPT reply:", reply)
         return reply
     
     except Exception as e:
@@ -121,5 +137,5 @@ def chatbot_response():
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 10000))
+    print("MODEL FOLDER CONTENTS (on startup):", os.listdir("./pretrained/dialo") if os.path.exists("./pretrained/dialo") else "Model folder missing!")
     app.run(host="0.0.0.0", port=port)
-
