@@ -73,32 +73,39 @@ def chat():
 
 @app.route("/get", methods=["POST"])
 def chatbot_response():
-    global chat_history_ids
     print("POST /get received")
-    msg = request.form["msg"].lower()
-    print("User message:", msg)
-    rows = fetch_latest_sensor()
-    print("Database fetch result:", rows)
+    try:
+        msg = request.form["msg"].lower()
+        print("User message:", msg)
+        rows = fetch_latest_sensor()
+        print("Database fetch result:", rows)
 
-    if rows:
-        latest = rows[0]
-        max_temp_row = max(rows, key=lambda x: x.Temperature)
-        min_hum_row = min(rows, key=lambda x: x.Humidity)
+        if rows:
+            latest = rows[0]
+            max_temp_row = max(rows, key=lambda x: x.Temperature)
+            min_hum_row = min(rows, key=lambda x: x.Humidity)
 
-        if "temperature" in msg:
-            return f"🌡️ Current temperature is {latest.Temperature}°C at {latest.Position} (Sensor {latest.Sensor}) as of {latest.Date.strftime('%Y-%m-%d')}."
-        elif "humidity" in msg:
-            return f"💧 Current humidity is {latest.Humidity}% at {latest.Position} (Sensor {latest.Sensor}) as of {latest.Date.strftime('%Y-%m-%d')}."
-        elif "water" in msg or "irrigation" in msg or "siram" in msg:
-            if latest.Temperature > 30 or latest.Humidity < 50:
-                return f"✅ Yes, watering is advisable (Temp: {latest.Temperature}°C, Humidity: {latest.Humidity}%)."
+            if "temperature" in msg:
+                return f"🌡️ Current temperature is {latest.Temperature}°C at {latest.Position} (Sensor {latest.Sensor}) as of {latest.Date.strftime('%Y-%m-%d')}."
+            elif "humidity" in msg:
+                return f"💧 Current humidity is {latest.Humidity}% at {latest.Position} (Sensor {latest.Sensor}) as of {latest.Date.strftime('%Y-%m-%d')}."
+            elif "water" in msg or "irrigation" in msg or "siram" in msg:
+                if latest.Temperature > 30 or latest.Humidity < 50:
+                    return f"✅ Yes, watering is advisable (Temp: {latest.Temperature}°C, Humidity: {latest.Humidity}%)."
+                else:
+                    return f"🚫 No need to water now. (Temp: {latest.Temperature}°C, Humidity: {latest.Humidity}%)."
+            elif "hottest" in msg or "highest temperature" in msg:
+                return f"🔥 The highest temperature is {max_temp_row.Temperature}°C at {max_temp_row.Position} (Sensor {max_temp_row.Sensor}) on {max_temp_row.Date.strftime('%Y-%m-%d')}."
+            elif "lowest humidity" in msg or "driest" in msg:
+                return f"💨 The lowest humidity is {min_hum_row.Humidity}% at {min_hum_row.Position} (Sensor {min_hum_row.Sensor}) on {min_hum_row.Date.strftime('%Y-%m-%d')}."
             else:
-                return f"🚫 No need to water now. (Temp: {latest.Temperature}°C, Humidity: {latest.Humidity}%)."
-        elif "hottest" in msg or "highest temperature" in msg:
-            return f"🔥 The highest temperature is {max_temp_row.Temperature}°C at {max_temp_row.Position} (Sensor {max_temp_row.Sensor}) on {max_temp_row.Date.strftime('%Y-%m-%d')}."
-        elif "lowest humidity" in msg or "driest" in msg:
-            return f"💨 The lowest humidity is {min_hum_row.Humidity}% at {min_hum_row.Position} (Sensor {min_hum_row.Sensor}) on {min_hum_row.Date.strftime('%Y-%m-%d')}."
-        
+                return "❓ Sorry, I can only answer questions about temperature, humidity, or irrigation right now."
+        else:
+            return "⚠️ No sensor data found in the database."
+    except Exception as e:
+        print("❌ Server error:", e)
+        return f"⚠️ Server error: {str(e)}"
+
     # Fallback to DialoGPT response
     # try:
     #     print("🧠 Falling back to DialoGPT...")
@@ -133,8 +140,6 @@ def chatbot_response():
     # except Exception as e:
     #     print(f"❌ GPT fallback error: {e}")
     #     return "⚠️ I'm having trouble replying right now. Please try again later."
-
-        return "❓ Sorry, I can only answer questions about sensor data right now."
 
 
 if __name__ == "__main__":
