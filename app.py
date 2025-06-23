@@ -6,16 +6,20 @@ import os
 
 app = Flask(__name__)
 
+# Database connection settings
+DB_CONNECTION_STRING = (
+    "DRIVER={ODBC Driver 18 for SQL Server};"
+    "SERVER=tdmsql.database.windows.net;"
+    "DATABASE=DynamicsByod;"
+    "UID=sqladmin;"
+    "PWD=tdmtdM@kt;"
+    "Encrypt=yes;"
+)
+
 def fetch_latest_sensor():
+    """Fetch the 10 latest sensor records from Azure SQL database."""
     try:
-        conn = pyodbc.connect(
-            "DRIVER={ODBC Driver 18 for SQL Server};"
-            "SERVER=tdmsql.database.windows.net;"
-            "DATABASE=DynamicsByod;"
-            "UID=sqladmin;"
-            "PWD=tdmtdM@kt;"
-            "Encrypt=yes;"
-        )
+        conn = pyodbc.connect(DB_CONNECTION_STRING)
         cursor = conn.cursor()
         cursor.execute("""
             SELECT TOP 10 Temperature, Humidity, Position, Sensor, Date, Time
@@ -24,27 +28,21 @@ def fetch_latest_sensor():
         """)
         columns = [column[0] for column in cursor.description]
         rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
-        print(f"[DEBUG] Number of rows fetched: {len(rows)}")
-        if rows:
-            print("[DEBUG] Sample row:", rows[0])
-        else:
-            print("[DEBUG] No data returned from SQL query.")
         cursor.close()
         conn.close()
         return rows
     except Exception as e:
-        print("❌ Error while connecting to database or fetching data:", e)
+        print("❌ Database error:", e)
         return None
 
 def parse_value(val):
     if isinstance(val, Decimal):
         return float(val)
-    if isinstance(val, datetime.date):
-        return val.strftime("%Y-%m-%d")
+    if isinstance(val, (datetime.date, datetime.datetime)):
+        return str(val)
     return str(val)
 
 def row_display(row):
-    # Convert every value to a Python-native type
     return {k: parse_value(v) for k, v in row.items()}
 
 @app.route("/")
@@ -60,7 +58,6 @@ def chatbot_response():
     try:
         msg = request.form["msg"].lower()
         rows = fetch_latest_sensor()
-        print("[DEBUG] /get endpoint rows:", rows)  # <--- ADDED
         if rows and len(rows) > 0:
             parsed_rows = [row_display(r) for r in rows]
             latest = parsed_rows[0]
@@ -72,7 +69,7 @@ def chatbot_response():
             elif "humidity" in msg:
                 return f"💧 Current humidity is {latest['Humidity']}% at {latest['Position']} (Sensor {latest['Sensor']}) as of {latest['Date']} {latest['Time']}."
             elif "water" in msg or "irrigation" in msg or "siram" in msg:
-                if latest['Temperature'] > 30 or latest['Humidity'] < 50:
+                if float(latest['Temperature']) > 30 or float(latest['Humidity']) < 50:
                     return f"✅ Yes, watering is advisable (Temp: {latest['Temperature']}°C, Humidity: {latest['Humidity']}%)."
                 else:
                     return f"🚫 No need to water now. (Temp: {latest['Temperature']}°C, Humidity: {latest['Humidity']}%)."
@@ -81,12 +78,14 @@ def chatbot_response():
             elif "lowest humidity" in msg or "driest" in msg:
                 return f"💨 The lowest humidity is {min_hum_row['Humidity']}% at {min_hum_row['Position']} (Sensor {min_hum_row['Sensor']}) on {min_hum_row['Date']} at {min_hum_row['Time']}."
             else:
-                return "❓ Sorry, I can only answer questions about temperature, humidity, or irrigation right now."
+                return (
+                    "❓ Sorry, I can answer questions about temperature, humidity, "
+                    "watering recommendation, highest temperature, or lowest humidity."
+                )
         else:
-            print("[DEBUG] No rows found or rows is None")
             return "⚠️ No sensor data found in the database."
     except Exception as e:
-        print("❌ Server error in /get:", e)
+        print("❌ Server error:", e)
         return f"⚠️ Server error: {str(e)}"
 
 if __name__ == "__main__":
