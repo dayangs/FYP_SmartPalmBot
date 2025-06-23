@@ -62,21 +62,3 @@ sendBtn.addEventListener("click", sendMsg);
 userInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendMsg();
 });
-
-// 3) Poll sensor data every minute (optional, won't break if backend route missing)
-async function fetchSensor() {
-  try {
-    const res = await fetch('/api/sensor');
-    if (!res.ok) throw new Error('Network error');
-    const { temperature, humidity, weather } = await res.json();
-    document.getElementById('tempValue').textContent = `${temperature}°C`;
-    document.getElementById('humValue').textContent  = `${humidity}%`;
-    document.getElementById('weatherValue').textContent = weather;
-  } catch (err) {
-    // Optionally log or display: document.getElementById('weatherValue').textContent = 'N/A';
-    // console.warn('Sensor fetch failed:', err);
-  }
-}
-
-setInterval(fetchSensor, 60_000);
-fetchSensor();
