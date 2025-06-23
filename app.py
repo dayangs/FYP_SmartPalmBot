@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request
 import pyodbc
+from decimal import Decimal
+import datetime
 import os
 
 app = Flask(__name__)
@@ -24,13 +26,26 @@ def fetch_latest_sensor():
         rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
         cursor.close()
         conn.close()
-        print(f"Fetched {len(rows)} rows.")
+        print(f"[DEBUG] Number of rows fetched: {len(rows)}")
         if rows:
-            print("Sample row:", rows[0])
+            print("[DEBUG] Sample row:", rows[0])
+        else:
+            print("[DEBUG] No data returned from SQL query.")
         return rows
     except Exception as e:
         print("❌ Error while connecting to database or fetching data:", e)
         return None
+
+def parse_value(val):
+    if isinstance(val, Decimal):
+        return float(val)
+    if isinstance(val, datetime.date):
+        return val.strftime("%Y-%m-%d")
+    return str(val)
+
+def row_display(row):
+    # Convert every value to a Python-native type
+    return {k: parse_value(v) for k, v in row.items()}
 
 @app.route("/")
 def index():
@@ -46,25 +61,17 @@ def chatbot_response():
         msg = request.form["msg"].lower()
         rows = fetch_latest_sensor()
         if rows:
-            latest = rows[0]
-            # Safely handle potential non-numeric data:
-            try:
-                max_temp_row = max(rows, key=lambda x: float(x["Temperature"]))
-            except Exception:
-                max_temp_row = latest
-            try:
-                min_hum_row = min(rows, key=lambda x: float(x["Humidity"]))
-            except Exception:
-                min_hum_row = latest
+            parsed_rows = [row_display(r) for r in rows]
+            latest = parsed_rows[0]
+            max_temp_row = max(parsed_rows, key=lambda x: x["Temperature"])
+            min_hum_row = min(parsed_rows, key=lambda x: x["Humidity"])
 
             if "temperature" in msg:
                 return f"🌡️ Current temperature is {latest['Temperature']}°C at {latest['Position']} (Sensor {latest['Sensor']}) as of {latest['Date']} {latest['Time']}."
             elif "humidity" in msg:
                 return f"💧 Current humidity is {latest['Humidity']}% at {latest['Position']} (Sensor {latest['Sensor']}) as of {latest['Date']} {latest['Time']}."
             elif "water" in msg or "irrigation" in msg or "siram" in msg:
-                temp = float(latest['Temperature']) if latest['Temperature'] else 0
-                hum = float(latest['Humidity']) if latest['Humidity'] else 0
-                if temp > 30 or hum < 50:
+                if latest['Temperature'] > 30 or latest['Humidity'] < 50:
                     return f"✅ Yes, watering is advisable (Temp: {latest['Temperature']}°C, Humidity: {latest['Humidity']}%)."
                 else:
                     return f"🚫 No need to water now. (Temp: {latest['Temperature']}°C, Humidity: {latest['Humidity']}%)."
