@@ -4,5 +4,4 @@ services:
     env: python
     buildCommand: |
       pip install -r requirements.txt
-      python download_model.py  # <-- this downloads the model
     startCommand: python app.py
