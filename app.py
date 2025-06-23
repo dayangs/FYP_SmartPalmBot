@@ -9,7 +9,7 @@ app = Flask(__name__)
 def fetch_latest_sensor():
     try:
         conn = pyodbc.connect(
-            "DRIVER={ODBC Driver 17 for SQL Server};"
+            "DRIVER={ODBC Driver 18 for SQL Server};"
             "SERVER=tdmsql.database.windows.net;"
             "DATABASE=DynamicsByod;"
             "UID=sqladmin;"
