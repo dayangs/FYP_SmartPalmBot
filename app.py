@@ -24,13 +24,13 @@ def fetch_latest_sensor():
         """)
         columns = [column[0] for column in cursor.description]
         rows = [dict(zip(columns, row)) for row in cursor.fetchall()]
-        cursor.close()
-        conn.close()
         print(f"[DEBUG] Number of rows fetched: {len(rows)}")
         if rows:
             print("[DEBUG] Sample row:", rows[0])
         else:
             print("[DEBUG] No data returned from SQL query.")
+        cursor.close()
+        conn.close()
         return rows
     except Exception as e:
         print("❌ Error while connecting to database or fetching data:", e)
@@ -60,7 +60,8 @@ def chatbot_response():
     try:
         msg = request.form["msg"].lower()
         rows = fetch_latest_sensor()
-        if rows:
+        print("[DEBUG] /get endpoint rows:", rows)  # <--- ADDED
+        if rows and len(rows) > 0:
             parsed_rows = [row_display(r) for r in rows]
             latest = parsed_rows[0]
             max_temp_row = max(parsed_rows, key=lambda x: x["Temperature"])
@@ -82,9 +83,10 @@ def chatbot_response():
             else:
                 return "❓ Sorry, I can only answer questions about temperature, humidity, or irrigation right now."
         else:
+            print("[DEBUG] No rows found or rows is None")
             return "⚠️ No sensor data found in the database."
     except Exception as e:
-        print("❌ Server error:", e)
+        print("❌ Server error in /get:", e)
         return f"⚠️ Server error: {str(e)}"
 
 if __name__ == "__main__":
